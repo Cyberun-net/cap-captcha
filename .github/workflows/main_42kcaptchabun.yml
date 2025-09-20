@@ -27,7 +27,7 @@ jobs:
       - name: Install dependencies
         run: cd standalone && bun install 
       - name: Build 
-        run: bun run
+        run: cd standalone && bun run ./src/index.js"
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
@@ -36,4 +36,5 @@ jobs:
           slot-name: 'Production'
           package: .
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_BBD6F7A10A93465CB1A7F01170F5A80C }}
+
 
