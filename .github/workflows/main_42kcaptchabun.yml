@@ -1,5 +1,28 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
+# Install as AZURE web app
+# Basics:
+#  Name: 42kCaptchaBun
+#  Code
+#  Node 22 LTS
+#  Basic B1
+# Deployment:
+# Continous Deployment: enable
+#  Github
+#    ...
+#  BasicAuth: Enable
+
+# Settings / Environment variables:
+# PORT = 80
+# SERVER_PORT = 80
+# WEBSITE_HTTPLOGGING_RETENTION_DAYS = 5
+# ADMIN_KEY = 42kCapAdmin_3krc5gue60joir347aeko57fhyy91599982
+
+# Settings / Configuration:
+# Startup Command: ./startup.sh
+# SCM Basic Auth Publishing Credentials: on
+# FTP Basic Auth Publishing Credentials: on
+# SSH: on
+#Always on: on
+
 
 name: Build and deploy Node.js app to Azure Web App - 42kCaptchaBun
 on:
@@ -40,7 +63,7 @@ jobs:
           bun install
 
           # Lancer l'app
-          bun run index.ts
+          bun run src/index.js
           EOF
 
       - name: Make startup.sh executable
@@ -59,6 +82,7 @@ jobs:
           app-name: '42kCaptchaBun'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_BBD6F7A10A93465CB1A7F01170F5A80C }}
           package: ./deploy.zip
+
 
 
 
