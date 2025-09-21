@@ -21,7 +21,9 @@
 # SCM Basic Auth Publishing Credentials: on
 # FTP Basic Auth Publishing Credentials: on
 # SSH: on
-#Always on: on
+# Always on: on
+
+# be patient : it take around 5 minutes to start the 1st time as it as to install bun and seems to restart few times during this period
 
 
 name: Build and deploy Node.js app to Azure Web App - 42kCaptchaBun
@@ -82,6 +84,7 @@ jobs:
           app-name: '42kCaptchaBun'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_BBD6F7A10A93465CB1A7F01170F5A80C }}
           package: ./deploy.zip
+
 
 
 
