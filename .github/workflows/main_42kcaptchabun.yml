@@ -6,8 +6,6 @@ on:
   push:
     branches:
       - main
-    paths:
-      - 'standalone/**'
 
   workflow_dispatch:
 
@@ -61,5 +59,6 @@ jobs:
           app-name: '42kCaptchaBun'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_BBD6F7A10A93465CB1A7F01170F5A80C }}
           package: ./deploy.zip
+
 
 
