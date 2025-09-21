@@ -2,41 +2,64 @@
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
 name: Build and deploy Node.js app to Azure Web App - 42kCaptchaBun
-
 on:
   push:
     branches:
       - main
+    paths:
+      - 'standalone/**'
+
   workflow_dispatch:
 
-env:
-  AZURE_WEBAPP_NAME: "App"
-  AZURE_PACKAGE_PATH: "."
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read #This is required for actions/checkout
 
     steps:
-      - uses: actions/checkout@v4
-      - name: Use Bun
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
-      - name: Install dependencies
-        run: cd standalone && bun install 
-      - name: Build 
-        run: cd standalone && bun build ./src/index.js --target bun --compile --outfile app
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Create output folder and copy standalone content
+        run: |
+          mkdir -p output
+          cp -r standalone/* output/
+
+      - name: Create startup.sh script with Bun install and run
+        run: |
+          cat << 'EOF' > output/startup.sh
+          #!/bin/bash
+          set -ex
+
+          # Installer Bun
+          curl -fsSL https://bun.sh/install | bash
+          export BUN_INSTALL="$HOME/.bun"
+          export PATH="$BUN_INSTALL/bin:$PATH"
+
+          # Aller dans le dossier de l'app
+          cd /home/site/wwwroot
+
+          # Installer les dépendances
+          bun install
+
+          # Lancer l'app
+          bun run index.ts
+          EOF
+
+      - name: Make startup.sh executable
+        run: chmod +x output/startup.sh
+        
+      - name: Zip deployable content
+        run: |
+          cd output
+          zip -r ../deploy.zip .
+          cd ..
+
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
           app-name: '42kCaptchaBun'
-          slot-name: 'Production'
-          package: .
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_BBD6F7A10A93465CB1A7F01170F5A80C }}
-
-
+          package: ./deploy.zip
 
 
