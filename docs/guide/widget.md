@@ -1,33 +1,37 @@
 # @cap.js/widget
 
-> [!NOTE]
->
-> **Requirements:** All modern browsers should be supported, but the build script specifically targets the last 10 versions of Chrome, Firefox, Safari and Edge.
-
-`@cap.js/widget` is Cap's client-side library. It includes the `cap-widget` web component, the invisible mode and the Captcha solver. First, add it to your client-side code:
+`@cap.js/widget` is Cap's client-side library. It includes the `cap-widget` web component, the invisible mode and the CAPTCHA solver. First, add it to your client-side code:
 
 ::: code-group
 
-```html
+```html[jsdelivr]
 <script src="https://cdn.jsdelivr.net/npm/@cap.js/widget"></script>
+
+<!-- we're using the latest version of the library here for simplicity, but you should optimally pin a specific version to avoid breaking changes in the future. -->
 ```
 
-```html
+```html[unpkg]
 <script src="https://unpkg.com/@cap.js/widget"></script>
+
+<!-- we're using the latest version of the library here for simplicity, but you should optimally pin a specific version to avoid breaking changes in the future. -->
 ```
 
-```html
+```js[bundler]
+// npm:  npm i @cap.js/widget
+// pnpm: pnpm install @cap.js/widget
+// bun:  bun add @cap.js/widget
+
+import Cap from '@cap.js/widget';
+
+// ...
+```
+
+```html[standalone server]
+<script>
+  window.CAP_CUSTOM_WASM_URL = "https://<server url>/assets/cap_wasm.js";
+</script>
 <script src="https://<server url>/assets/widget.js"></script>
-
-<!-- tip: make sure to set the wasm endpoint too! -->
 ```
-
-:::
-
-::: warning
-
-We're using the latest version of the library here for simplicity, but you should optimally pin a specific version to avoid breaking changes in the future.
-
 :::
 
 You can now use the `<cap-widget>` component in your HTML.
@@ -36,28 +40,41 @@ You can now use the `<cap-widget>` component in your HTML.
 <cap-widget id="cap" data-cap-api-endpoint="<your cap endpoint>"></cap-widget>
 ```
 
-> [!NOTE]
->
-> You'll need to start a server with an API exposing the Cap methods running at the same URL as specified in the `data-cap-api-endpoint` attribute.
+**Note:** You'll need to start a server with an API exposing the Cap methods running at the same URL as specified in the `data-cap-api-endpoint` attribute.
 
-> [!TIP] The following attributes are supported:
->
-> - `data-cap-api-endpoint`: API endpoint (required if not using custom fetch)
-> - `data-cap-worker-count`: Number of workers to use (defaults to `navigator.hardwareConcurrency || 8`)
+The following attributes are supported:
+
+- `data-cap-api-endpoint`: API endpoint (required if not using custom fetch)
+- `data-cap-worker-count`: Number of workers to use (defaults to `navigator.hardwareConcurrency || 8`)
+- `onsolve=""`: Event listener for the `solve` event
+- [i18n attributes](#i18n)
 
 Then, in your JavaScript, listen for the `solve` event to capture the token when generated:
 
-```js{3}
+```js
 const widget = document.querySelector("#cap");
 
 widget.addEventListener("solve", function (e) {
   const token = e.detail.token;
 
-  // Handle the token as needed
+  // handle the token as needed
 });
 ```
 
 Alternatively, you can use `onsolve=""` directly within the widget or wrap the widget in a `<form></form>` (where Cap will automatically submit the token alongside other form data. for this, it'll create a hidden field with name set to its `data-cap-hidden-field-name` attribute or `cap-token`).
+
+## Invisible mode
+You can use `new Cap({ ... })` in your client-side JavaScript to create a new Cap instance and use the `solve()` method to solve the challenge. This is helpful for situations where you don't want the Cap widget to be visible but still want security, e.g. on a social media app when posting something.
+
+```js
+import Cap from '@cap.js/widget';
+
+const cap = new Cap({
+  apiEndpoint: '/api/cap'
+});
+
+const token = await cap.solve();
+```
 
 ## Supported events
 
@@ -94,7 +111,8 @@ You can override the default browser fetch implementation by setting `window.CAP
 
 ```js
 window.CAP_CUSTOM_FETCH = function (url, options) {
-  // Custom fetch implementation
+  // … add your custom fetch implementation
+
   return fetch(url, options);
 };
 ```
@@ -133,3 +151,7 @@ cap-widget {
   --cap-opacity-hover: 0.8;
 }
 ```
+
+## Types
+
+Cap's widget is fully typed. You can find the type definitions in the `cap.d.ts` file.
